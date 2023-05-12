@@ -1,39 +1,46 @@
 import Image from "next/image";
 import boardImage from "public/boardImage.png";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { z } from "zod";
-
-const questionSchema = z.object({
-  title: z.string(),
-  question: z.string(),
-  imageLink: z.optional(z.string()),
-  answer: z.string(),
-});
+import { questionBank, questionSchema } from "~/questions";
 
 export default function Board() {
   const [questionInfo, setQuestionInfo] = useState<null | z.infer<
     typeof questionSchema
   >>(null);
 
+  const usedQuestionIdRef = useRef<Set<number>>(new Set());
+
   // Get question info with side effects
   function getQuestionInfo(title: string) {
-    setQuestionInfo({
-      title: title,
-      question: "What country is this?",
-      imageLink:
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Italian_regions_provinces_white_no_labels.svg/1200px-Italian_regions_provinces_white_no_labels.svg.png",
-      answer: "Italy",
-    });
+    const candidateQuestions = questionBank.filter(
+      (cQuestionInfo) =>
+        cQuestionInfo.title === title &&
+        !usedQuestionIdRef.current.has(cQuestionInfo.id)
+    );
+
+    const chosenQuestionInfo =
+      candidateQuestions[Math.floor(Math.random() * candidateQuestions.length)];
+
+    const parsedCheck = questionSchema.safeParse(chosenQuestionInfo);
+    if (!parsedCheck.success) {
+      // Indicate in question modal
+      console.log("Pertanyaan habis, mohon pilih pertanyaan lain");
+      return;
+    }
+
+    setQuestionInfo(parsedCheck.data);
+    usedQuestionIdRef.current.add(parsedCheck.data.id);
   }
 
   return (
     <>
       {questionInfo !== null && (
         <QuestionModal
-          title="GEO 101"
-          question="What country is this?"
-          imageLink="https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Italian_regions_provinces_white_no_labels.svg/1200px-Italian_regions_provinces_white_no_labels.svg.png"
-          answer="Italy"
+          title={questionInfo.title}
+          question={questionInfo.question}
+          imageLink={questionInfo.imageLink}
+          answer={questionInfo.answer}
           onClose={() => {
             setQuestionInfo(null);
           }}
@@ -163,19 +170,6 @@ export default function Board() {
           <div className="h-5 w-5 rounded-full bg-green-600" />
           <p className="text-lg">Tim Kangkung</p>
         </div>
-        <button
-          onClick={() => {
-            setQuestionInfo({
-              title: "GEO 101",
-              question: "What country is this?",
-              imageLink:
-                "https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Italian_regions_provinces_white_no_labels.svg/1200px-Italian_regions_provinces_white_no_labels.svg.png",
-              answer: "Italy",
-            });
-          }}
-        >
-          TEST OPEN QUESTION
-        </button>
       </div>
     </>
   );
@@ -205,26 +199,28 @@ function QuestionModal({
       >
         X Close
       </button>
-      <h1 className="text-4xl">{title}</h1>
-      <p className="text-lg">{question}</p>
-      {typeof imageLink !== "undefined" && (
-        <Image
-          src={imageLink}
-          height={200}
-          width={400}
-          alt="some image"
-          className="mt-3"
-        />
-      )}
-      <button
-        className="rounded-md bg-slate-700 px-2 py-1 text-lg text-white"
-        onClick={() => {
-          setShowAnswer((show) => !show);
-        }}
-      >
-        {showAnswer ? "Hide" : "Show"} Answer
-      </button>
-      {showAnswer && <p className="text-2xl">{answer}</p>}
+      <div className="-mt-3 flex h-full flex-grow flex-col items-center justify-center gap-5 text-center">
+        <h1 className="text-4xl">{title}</h1>
+        <p className="text-2xl">{question}</p>
+        {typeof imageLink !== "undefined" && (
+          <Image
+            src={imageLink}
+            height={200}
+            width={400}
+            alt="some image"
+            className="mt-3"
+          />
+        )}
+        <button
+          className="rounded-md bg-slate-700 px-2 py-1 text-lg text-white"
+          onClick={() => {
+            setShowAnswer((show) => !show);
+          }}
+        >
+          {showAnswer ? "Hide" : "Show"} Answer
+        </button>
+        {showAnswer && <p className="text-2xl font-semibold">{answer}</p>}
+      </div>
     </section>
   );
 }
