@@ -58,7 +58,7 @@ export default function Board() {
       )}
 
       <div className="flex h-full w-full flex-grow flex-col items-center justify-center px-5 pt-3">
-        <div className="text-3xl">Board</div>
+        <div className="text-4xl">Papan Pertanyaan</div>
         <div className="relative mt-10">
           <button
             className="relative left-8 top-[269px] h-5 w-5 rounded"
