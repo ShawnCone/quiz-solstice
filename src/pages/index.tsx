@@ -1,6 +1,7 @@
 import { type NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
+import Link from "next/link";
 import titleImg from "public/title.png";
 
 const Home: NextPage = () => {
@@ -18,9 +19,9 @@ const Home: NextPage = () => {
           <Image src={titleImg} height={100} width={300} alt="title" />
         </div>
 
-        <a className="underline" href="/play">
+        <Link className="underline" href="/play">
           Mulai
-        </a>
+        </Link>
       </div>
     </>
   );
