@@ -47,7 +47,7 @@ const DraggableDiv = ({
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [isDragging, startX, startY]);
+  }, [isDragging, startX, startY, disabled]);
 
   return (
     <div

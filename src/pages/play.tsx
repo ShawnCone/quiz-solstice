@@ -2,9 +2,7 @@ import { NextPage } from "next";
 import Head from "next/head";
 import Board from "~/components/Board";
 
-interface Props {}
-
-const Play: NextPage<Props> = ({}) => {
+const Play: NextPage = ({}) => {
   return (
     <>
       <Head>
